@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#101127">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Country Spin">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Country Spin</title>
+<style>
+:root{color-scheme:dark;--ink:#f7f7ff;--muted:#b9bad4}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#101127}
+body{background:radial-gradient(ellipse at 15% 15%,#5939a5 0,transparent 40%),radial-gradient(ellipse at 90% 85%,#086f87 0,transparent 40%),linear-gradient(135deg,#111329,#251447 55%,#071d35)}
+#app{height:100dvh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:clamp(18px,4vh,42px) 18px max(20px,env(safe-area-inset-bottom));position:relative;isolation:isolate}
+#app:before,#app:after{content:"";position:absolute;width:38vw;height:38vw;max-width:420px;max-height:420px;border-radius:50%;filter:blur(70px);opacity:.25;z-index:-1;pointer-events:none}
+#app:before{background:#c03dba;top:8%;left:-14%}#app:after{background:#16b9c8;right:-15%;bottom:3%}
+.top{text-align:center;width:100%}
+.eyebrow{font-size:clamp(10px,2vw,13px);letter-spacing:.28em;text-transform:uppercase;color:#d5d4ff;font-weight:800}
+h1{margin:8px 0 4px;font-size:clamp(29px,6vw,48px);letter-spacing:-.045em;line-height:1.05}
+.subtitle{margin:9px 0 0;color:var(--muted);font-size:clamp(12px,2.6vw,15px)}
+.stage{width:min(100%,680px);display:flex;flex-direction:column;align-items:center;gap:clamp(18px,4vh,30px);flex:1;justify-content:center;min-height:0}
+.country-card{width:100%;min-height:clamp(160px,28vh,260px);border:1px solid #ffffff30;border-radius:30px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;position:relative;overflow:hidden;background:linear-gradient(135deg,#ffffff18,#ffffff05);box-shadow:0 24px 90px #0003,inset 0 1px #ffffff22;backdrop-filter:blur(18px)}
+.country-card:before{content:"";position:absolute;inset:-50%;background:conic-gradient(from 20deg,transparent,#ffffff0c,transparent 35%);animation:shimmer 8s linear infinite;pointer-events:none}
+#country{font-size:clamp(36px,9vw,78px);font-weight:850;line-height:1.04;letter-spacing:-.055em;overflow-wrap:anywhere;text-shadow:0 4px 35px #0003;z-index:1}
+@keyframes shimmer{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.spinning #country{animation:pulse .18s infinite}
+.tap-hint{font-size:13px;color:#e3e3f8;letter-spacing:.04em;text-align:center}
+.primary{border:0;border-radius:18px;padding:18px 24px;width:min(100%,440px);font-size:17px;font-weight:850;color:#17152f;background:linear-gradient(100deg,#f8d5ff,#c4dcff 52%,#9ff3e4);box-shadow:0 12px 35px #0003;cursor:pointer;transition:transform .15s,opacity .15s}
+.primary:active{transform:scale(.98)}button:disabled{opacity:.5;cursor:default}
+.bottom{width:min(100%,680px);display:flex;flex-direction:column;align-items:center;gap:12px}
+.stats{display:flex;gap:20px;color:#d0d0e8;font-size:12px}
+.stats strong{color:white;font-size:14px}
+.result-actions{display:none;gap:10px;width:min(100%,440px)}
+.result-actions.show{display:flex}
+.secondary{flex:1;border:1px solid #ffffff36;background:#ffffff10;color:#fff;border-radius:15px;padding:14px 10px;font-size:14px;font-weight:750;backdrop-filter:blur(12px);cursor:pointer}
+.secondary.keep{background:#ffffffed;color:#19162e;border-color:transparent}
+.foot{font-size:11px;color:#aaaac7;text-align:center}
+#toast{position:absolute;top:15%;left:50%;transform:translateX(-50%);padding:9px 14px;background:#ffffffed;color:#17152f;border-radius:999px;font-size:12px;font-weight:800;display:none;white-space:nowrap}
+@media(max-height:600px){#app{padding-top:12px;padding-bottom:12px}.subtitle{margin-top:4px}.country-card{min-height:125px;border-radius:22px}.stage{gap:12px}.primary{padding:12px}.bottom{gap:7px}}
+</style>
+</head>
+<body>
+<main id="app">
+ <div id="toast"></div>
+ <header class="top">
+  <div class="eyebrow">YOUR NEXT DESTINATION</div>
+  <h1>Country Spin</h1>
+  <p class="subtitle">One tap. One random country. Endless exploring.</p>
+ </header>
+ <section class="stage">
+  <div class="country-card" id="card" aria-live="polite"><div id="country">Tap to spin</div></div>
+  <div class="tap-hint" id="hint">Tap the button or anywhere on the screen to begin</div>
+ </section>
+ <footer class="bottom">
+  <button class="primary" id="spin">✦ &nbsp; SPIN THE WORLD</button>
+  <div class="result-actions" id="actions">
+   <button class="secondary keep" id="keep">↻ Keep in the spin</button>
+   <button class="secondary" id="remove">✕ Remove country</button>
+  </div>
+  <div class="stats"><span><strong id="remaining">195</strong> countries left</span><span><strong id="picked">0</strong> picked</span></div>
+  <div class="foot">Full-screen friendly · Random selection · Your list stays on this page</div>
+ </footer>
+</main>
+<script>
+const allCountries = [
+"Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
+"Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
+"Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Côte d’Ivoire","Croatia","Cuba","Cyprus","Czechia",
+"Democratic Republic of the Congo","Denmark","Djibouti","Dominica","Dominican Republic",
+"Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
+"Fiji","Finland","France",
+"Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+"Haiti","Honduras","Hungary",
+"Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
+"Jamaica","Japan","Jordan",
+"Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan",
+"Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
+"Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
+"Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway",
+"Oman",
+"Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
+"Qatar",
+"Romania","Russia","Rwanda",
+"Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+"Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Türkiye","Turkmenistan","Tuvalu",
+"Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+"Vanuatu","Vatican City","Venezuela","Vietnam",
+"Yemen",
+"Zambia","Zimbabwe"
+];
+let available = [...allCountries], picked = [], current = null, spinning = false, timer = null;
+const countryEl=document.getElementById('country'), card=document.getElementById('card'), spinBtn=document.getElementById('spin'), actions=document.getElementById('actions'), hint=document.getElementById('hint');
+function updateStats(){document.getElementById('remaining').textContent=available.length;document.getElementById('picked').textContent=picked.length}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',1600)}
+function spin(){
+ if(spinning)return;
+ if(!available.length){toast("All countries have been removed!");return}
+ spinning=true; current=null; actions.classList.remove('show'); card.classList.add('spinning'); spinBtn.disabled=true; spinBtn.textContent="⟳  SPINNING…"; hint.textContent="The world is choosing your next country…";
+ const duration=2200+Math.random()*1300, start=performance.now(); let last=-1;
+ function tick(now){
+   const progress=Math.min(1,(now-start)/duration);
+   const delay=35+Math.pow(progress,2)*170;
+   if(last<0 || now-last>=delay){countryEl.textContent=available[Math.floor(Math.random()*available.length)];last=now}
+   if(progress<1){timer=requestAnimationFrame(tick)}else{
+    current=available[Math.floor(Math.random()*available.length)];countryEl.textContent=current;spinning=false;card.classList.remove('spinning');spinBtn.disabled=false;spinBtn.textContent="✦  SPIN AGAIN";actions.classList.add('show');hint.textContent="Your country is "+current+". Keep it or remove it from future spins.";picked.push(current);updateStats();toast("Destination selected!")
+   }
+ }
+ timer=requestAnimationFrame(tick)
+}
+function settle(remove){
+ if(!current)return;
+ if(remove){available=available.filter(c=>c!==current);toast(current+" removed from the spin")}
+ else toast(current+" stays in the spin");
+ current=null;actions.classList.remove('show');spinBtn.textContent="✦  SPIN AGAIN";hint.textContent="Ready for another destination?";updateStats()
+}
+spinBtn.addEventListener('click',spin);
+document.getElementById('keep').addEventListener('click',()=>settle(false));
+document.getElementById('remove').addEventListener('click',()=>settle(true));
+document.getElementById('app').addEventListener('click',e=>{if(e.target.closest('button'))return;if(!spinning&&!actions.classList.contains('show'))spin()});
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&!['BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();if(!spinning&&!actions.classList.contains('show'))spin()}});
+updateStats();
+</script>
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
